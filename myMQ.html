@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="js/mqttws31.js"></script>
+</head>
+
+<body onload="MQload()">
+
+</body>
+
+</html>
+<script>
+    var host = "10.16.4.229", port = "61614",
+        clientId = "aa" + (Math.floor(Math.random() * 100000)),
+        destination = "gg";
+    var user = "admin";
+    var password = "admin";
+    var client, isConnection = false;
+    var connectTimer;
+    function MQload() {
+        //浏览器支持websocket
+        if (window.WebSocket) {
+            client = new Messaging.Client(host, Number(port), clientId);
+            client.onConnect = onConnect;
+            client.onMessageArrived = onMessageArrived;
+            client.onConnectionLost = onConnectionLost;
+            client.connect({ onSuccess: onConnect });
+        }
+    }
+    // the client is notified when it is connected to the server.
+    var onConnect = function (frame) {
+        isConnection = true;
+        debug("onConnect__"+connectTimer+"__"+isConnection)
+        if (connectTimer) { clearInterval(connectTimer); connectTimer = undefined; }
+        client.subscribe(destination);
+    };
+
+    // this allows to display debug logs directly on the web page
+    var debug = function (str) {
+        console.log(str)
+    };
+
+
+    function onFailure(failure) {
+        debug("onFailure__"+connectTimer+"__"+isConnection)
+    }
+
+    function onMessageArrived(message) {
+        console.log(message.payloadString)
+    }
+
+    function onConnectionLost(responseObject) {
+        if (responseObject.errorCode !== 0) {
+            isConnection = false;
+            debug("connLost__"+connectTimer+"__"+isConnection)
+            if (!connectTimer){
+                debug("reconnect__"+connectTimer+"__"+isConnection)
+                connectTimer = setInterval(function () { client.connect({ onSuccess: onConnect }) }, 2000);}
+
+        }
+    }
+
+</script>
