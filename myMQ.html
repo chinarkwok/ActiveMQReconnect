@@ -39,6 +39,12 @@
         if (connectTimer) { clearInterval(connectTimer); connectTimer = undefined; }
         client.subscribe(destination);
     };
+    var connect=function(){
+        client.connect({ onSuccess: onConnect });
+    };
+    var disConnect=function(){
+        client.disconnect();
+    };
 
     // this allows to display debug logs directly on the web page
     var debug = function (str) {
@@ -60,8 +66,8 @@
             debug("connLost__"+connectTimer+"__"+isConnection)
             if (!connectTimer){
                 debug("reconnect__"+connectTimer+"__"+isConnection)
-                connectTimer = setInterval(function () { client.connect({ onSuccess: onConnect }) }, 2000);}
-
+                connectTimer = setInterval(function () { client.connect({ onSuccess: onConnect }) }, 2000);
+                }
         }
     }
 
